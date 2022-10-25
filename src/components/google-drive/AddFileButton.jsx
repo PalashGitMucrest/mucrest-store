@@ -15,9 +15,12 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
   const { currentUser } = useAuth()
 
   function handleUpload(e) {// We are uploading the file from local system
-    const file = e.target.files[0]
+    for (let i = 0; i < e.target.files.length; i++) {
+      uploadOpertation(e.target.files[i]);
+    }
+  }
+  function uploadOpertation(file) {
     if (currentFolder == null || file == null) return
-
     const id = uuidV4()
     setUploadingFiles(prevUploadingFiles => [
       ...prevUploadingFiles,
@@ -141,7 +144,7 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
               </Toast>
             ))}
           </div>,
-         document.body
+          document.body
         )}
     </>
   )
