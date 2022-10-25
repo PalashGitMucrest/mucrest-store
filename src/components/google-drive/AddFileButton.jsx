@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 import { faFileUpload } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useAuth } from "../../contexts/AuthContext"
-import {  database } from "../../firebase"
+import { database } from "../../firebase"
 import { ROOT_FOLDER } from "../../hooks/useFolder"
 import { v4 as uuidV4 } from "uuid"
 import { ProgressBar, Toast } from "react-bootstrap"
@@ -14,7 +14,7 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
   const [uploadingFiles, setUploadingFiles] = useState([])
   const { currentUser } = useAuth()
 
-  function handleUpload(e) {
+  function handleUpload(e) {// We are uploading the file from local system
     const file = e.target.files[0]
     if (currentFolder == null || file == null) return
 
@@ -29,15 +29,9 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
         : `${currentFolder.path.join("/")}/${currentFolder.name}/${file.name}`
 
 
-        
+
     const uploadTask = firebase.storage().ref(`/files/${currentUser.uid}/${filePath}`)
-    .put(file);
-    
-    // storage
-    //   .ref(`/files/${currentUser.uid}/${filePath}`)
-    //   .put(file)
-    
-   
+      .put(file);
 
     uploadTask.on(
       "state_changed",
@@ -101,7 +95,7 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
         <FontAwesomeIcon icon={faFileUpload} className="icon" />
         <input
           type="file"
-          onChange={handleUpload}
+          onChange={handleUpload} multiple
           style={{ opacity: 0, position: "absolute", left: "-9999px" }}
         />
       </label>
@@ -147,7 +141,7 @@ export default function AddFileButton({ currentFolder }) {//folders to be shown 
               </Toast>
             ))}
           </div>,
-          document.body
+         document.body
         )}
     </>
   )

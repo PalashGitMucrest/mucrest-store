@@ -1,5 +1,4 @@
-import React, { useState } from "react"
-import { Container } from "react-bootstrap"
+import React, { useContext, useEffect, useState } from "react"
 import { useFolder } from "../../hooks/useFolder"
 import AddFolderButton from "./AddFolderButton"
 import AddFileButton from "./AddFileButton"
@@ -13,6 +12,7 @@ import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons"
 import { database } from "../../firebase"
 import { Modal, Form, Button } from "react-bootstrap"
 import './Dashboard.scss'
+import { storage } from "../../firebase"
 
 export default function Dashboard() {//dashboard to show the folders and files
   const { folderId } = useParams()
@@ -25,12 +25,20 @@ export default function Dashboard() {//dashboard to show the folders and files
     setOpen(true)
   }
 
-  function closeModal() {
-    setOpen(false)
+  function moveHere() {
+    if(localStorage.getItem("moveId")){
+      database.folders.doc(localStorage.getItem("moveId")).update({ parentId: folder.id, path: [...folder.path] });
+      localStorage.clear("moveId");
+    }
+    if(localStorage.getItem("moveFileId")){
+      database.files.doc(localStorage.getItem("moveFileId")).update({ folderId: folder.id });
+      localStorage.clear("moveFileId");
+    }
+    
   }
 
-  function handleSubmit() {
-
+  function closeModal() {
+    setOpen(false)
   }
 
 
@@ -38,72 +46,79 @@ export default function Dashboard() {//dashboard to show the folders and files
     <>
       <Navbar />
       <section className="dashboard_container_outer">
-        <div className="breadcrums_file_folder_outer d-flex justify-content-center align-items-center">
+        <div className="breadcrums_file_folder_outer d-flex justify-content-center align-items-center" >
           <FolderBreadcrumbs currentFolder={folder} />
           <AddFileButton currentFolder={folder} />
           <div className="ml-3">
-          <AddFolderButton currentFolder={folder} />
+            <AddFolderButton currentFolder={folder} />
+
+          </div>
+
+        </div>
+        <div className="folder_file_container_outer">
+          <div className="folder_file_container_outer_inner">
+
+            {childFolders.length > 0 && (
+              <div className="folder_file_container_inner">
+                {childFolders.map(childFolder => (
+                  <div
+                    key={childFolder.id}
+                  >
+                    <Modal show={open} onHide={closeModal}>
+                      <Form onSubmit={(e) => {
+                        e.preventDefault();
+
+                        setOpen(false)
+                      }}>
+                        <Modal.Body>
+                          <Form.Group>
+                            <Form.Label>Folder Name</Form.Label>
+                            <Form.Control
+                              type="text"
+                              required
+                              value={name}
+                              onChange={e => setName(e.target.value)}
+                            />
+                          </Form.Group>
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="secondary" onClick={closeModal}>
+                            Close
+                          </Button>
+                          <Button variant="success" type="submit">
+                            Update Folder
+                          </Button>
+                        </Modal.Footer>
+                      </Form>
+                    </Modal>
+                    <Folder folder={childFolder} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {childFolders.length > 0 && childFiles.length > 0 && <hr />}
+            {childFiles.length > 0 && (
+              <div className="folder_file_container_inner">
+                {childFiles.map(childFile => (
+                  <div
+                    key={childFile.id}
+                    style={{ maxWidth: "250px" }}
+                    className="p-2"
+                  >
+                    <File file={childFile} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        {childFolders.length > 0 && (
-          <div className="d-flex flex-wrap">
-            {childFolders.map(childFolder => (
-              <div
-                key={childFolder.id}
-                // style={{ maxWidth: "250px" }}
-                // className="p-2"
-              >
+        {
+          (localStorage.getItem("moveId") || localStorage.getItem("moveFileId")) &&
+          <button className="move-btn" onClick={moveHere}>
+          Move Here
+        </button>
+        }
 
-                {/* <FontAwesomeIcon icon={faTrash} onClick={() => database.folders.doc(childFolder.id).delete()} className="mr-2 trash" /> */}
-                {/* <FontAwesomeIcon icon={faEdit} onClick={() => database.folders.doc(childFolder.id).update({ name: prompt() })} className="mr-2 edit" /> */}
-                <Modal show={open} onHide={closeModal}>
-                  <Form onSubmit={(e) => {
-                    e.preventDefault();
-
-                    setOpen(false)
-                  }}>
-                    <Modal.Body>
-                      <Form.Group>
-                        <Form.Label>Folder Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          required
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                        />
-                      </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button variant="secondary" onClick={closeModal}>
-                        Close
-                      </Button>
-                      <Button variant="success" type="submit">
-                        Update Folder
-                      </Button>
-                    </Modal.Footer>
-                  </Form>
-                </Modal>
-                <Folder folder={childFolder} />
-              </div>
-            ))}
-          </div>
-        )}
-        {childFolders.length > 0 && childFiles.length > 0 && <hr />}
-        {childFiles.length > 0 && (
-          <div className="d-flex flex-wrap">
-            {childFiles.map(childFile => (
-              <div
-                key={childFile.id}
-                style={{ maxWidth: "250px" }}
-                className="p-2"
-              >
-
-<FontAwesomeIcon icon={faTrash} onClick={() => database.files.doc(childFile.id).delete()} className="mr-2 trash" />
-                <File file={childFile} />
-              </div>
-            ))}
-          </div>
-        )}
       </section>
     </>
   )

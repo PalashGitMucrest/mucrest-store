@@ -1,0 +1,47 @@
+.each_file_icon {
+    // width: 12rem;
+    // box-shadow: 0 0 0.25rem #bdbdbd;
+    display: flex;
+    justify-content: center;
+    border: #d6d6d6 solid 0.1rem !important;
+    border-radius: 0.3rem;
+    width: 12rem;
+    align-items: center;
+    margin: 0 3rem 3rem 0;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: all ease 0.5s;
+    background-color: transparent !important;
+    text-decoration: none !important;
+
+    &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    &:hover {
+        border-color: lighten(yellow, 20%) !important;
+        background-color: lighten(yellow, 40%) !important;
+
+    }
+
+    .file_icon {
+        width: 2.25rem;
+        font-size: 2.25rem;
+        color: #a1a1a1;
+    }
+
+    .file_name {
+        width: calc(100% - 2.25rem);
+        padding-left: 1.25rem;
+
+        p {
+            color: #333;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    }
+}

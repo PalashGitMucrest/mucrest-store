@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   function signup(email, password) {
-    return auth.createUserWithEmailAndPassword(email, password)
+    return auth.createUserWithEmailAndPassword(email, password)//auth is coming from firebase
   }
 
   function login(email, password) {

@@ -2,9 +2,8 @@ import firebase from "firebase/app"
 import "firebase/auth"
 import "firebase/firestore"
 import "firebase/storage"
-import {initializeFirestore} from 'firebase/firestore';
 
-const app = firebase.initializeApp({
+const app = firebase.initializeApp({// set up the sdk
   apiKey: "AIzaSyAx6mPjoJWfVFaDa1vglgzysvsZx2rX5Lw",
   authDomain: "reactserver-f51af.firebaseapp.com",
   projectId: "reactserver-f51af",
@@ -14,7 +13,7 @@ const app = firebase.initializeApp({
 })
 
 const firestore = app.firestore()
-export const database = {
+export const database = {//created a database
   folders: firestore.collection("folders"),
   files: firestore.collection("files"),
   formatDoc: doc => {

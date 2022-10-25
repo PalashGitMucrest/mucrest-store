@@ -34,7 +34,7 @@ Button {
   border: #d6d6d6 solid 0.1rem !important;
   border-radius: 0.3rem;
   width: 10rem;
-  margin-right: 3rem;
+  margin: 0 3rem 3rem 0;
   padding: 0.25rem 0.8rem 0.75rem 0.8rem;
   cursor: pointer;
   transition: all ease 0.5s;
@@ -79,6 +79,7 @@ Button {
   border-radius: 0.8rem !important;
 
   .item {
+    text-transform: capitalize;
     &:not(:last-child) {
       // margin-bottom: 0.8rem;
     }
@@ -140,6 +141,29 @@ Button {
     }
     .cancelIcon {
       background-color: red;
+    }
+  }
+}
+
+.properties_outer{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  box-shadow: 0 0 0.5rem #bdbdbd;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  .properties_inner{
+    position: relative;
+    .close_icon{
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: #333;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
     }
   }
 }

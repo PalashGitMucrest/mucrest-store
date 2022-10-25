@@ -4,34 +4,50 @@ import { Button } from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faFolder, faTimes } from "@fortawesome/free-solid-svg-icons"
 import './Folder.scss'
-import { database } from "../../firebase"
+import { database, storage } from "../../firebase"
+import { useKeyboardShortcut } from "../../hooks/useKeyboardShortcut"
+
+// import { useKeyboardShortcut } from "./Navbar"
 
 export default function Folder({ folder }) {
   let [deletedId, setId] = useState(folder.id);
   let [edit, setEdit] = useState(false);
   let [name, setName] = useState(true);
   let [clicked, setClicked] = useState(false);
+  let [copiedData, setCopy] = useState();
+
+  function test123() {
+
+    if (copiedData) {
+      database.folders.doc(folder.id).delete();
+      database.folders.add(copiedData);
+      setCopy('');
+    }
+
+  }
+
+  useKeyboardShortcut(test123, ['Shift', 'Enter']);
+
   const location = useLocation();
 
 
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', function (e) {//if a user click outside right click menubar
     let inside = (e.target.closest('#container'));
     if (!inside && clicked) {
       let contextMenu = document.getElementById(folder.id);
-      // contextMenu.setAttribute('style', 'display:none');
-      console.log(location.pathname);
+      // console.log(location.pathname);
       contextMenu.style.display = 'none';
       setClicked(false);
     }
   });
-  
 
-  const saveData = () => {
+
+  const saveData = () => {//to update the name of the folder
     database.folders.doc(folder.id).update({ name: name });
     setEdit(false);
   }
 
-  const showItems = (event) => {
+  const showItems = (event) => {//show menu on on right click
     event.preventDefault();
     setClicked(true);
     let contextMenu = document.getElementById(folder.id);
@@ -52,28 +68,57 @@ export default function Folder({ folder }) {
     contextMenu.classList.add("block");
     contextMenu.style.display = 'block';
   }
+  function setPassword() {
+    console.log('test pg');
+    return;
+  }
+
+  function moveFolder() {
+    localStorage.setItem("moveId", folder.id);
+    var docRef = storage.collection("folders").doc(folder.id);
+
+    docRef.get().then((doc) => {
+      if (doc.exists) {
+        console.log("Document data:", doc.data());
+      } else {
+        console.log("No such document!");
+      }
+    }).catch((error) => {
+      console.log("Error getting document:", error);
+    });
+
+  }
+
+
+
 
   return (
     <>
+      {!edit && <Button onClick={setPassword} className="dashboard_folder_icon"
 
-      {!edit && <Button className="dashboard_folder_icon"
 
-        
         to={{
           pathname: `/folder/${folder.id}`,
           state: { folder: folder },
         }}
         onContextMenu={showItems}
-       
+
         as={Link}
       >
         <div className="icon_part">
           <FontAwesomeIcon icon={faFolder} className="icon" />
         </div>
         <div className="name_part">
-          <p className="m-0">
-            {folder.name}
-          </p>
+          {copiedData &&
+            <i className="m-0">
+              {folder.name}
+            </i>
+          }
+          {!copiedData &&
+            <p className="m-0">
+              {folder.name}
+            </p>
+          }
         </div>
 
       </Button>}
@@ -84,12 +129,10 @@ export default function Folder({ folder }) {
           </div>
           <div className="editButtons">
             <div className="iconOuter saveIcon">
-              {/* <Button onClick={saveData}>save</Button> */}
               <FontAwesomeIcon onClick={saveData} icon={faCheck} className="icon" />
             </div>
             <div className="iconOuter cancelIcon">
               <FontAwesomeIcon onClick={() => setEdit(false)} icon={faTimes} className="icon" />
-              {/* <Button onClick={() => setEdit(false)}>cancel</Button> */}
             </div>
           </div>
         </div>
@@ -97,11 +140,12 @@ export default function Folder({ folder }) {
 
       {
         <div className="menu_container" style={{ display: 'none' }} id={folder.id} >
-          <div className="item" onClick={() => database.folders.doc(deletedId).delete()}>delete {folder.name}</div>
-          <div className="item" onClick={() => setEdit(true)}>Edit</div>
-          <div className="item">Option 3</div>
-          <div className="item">Option 4</div>
-          <div className="item">Option 5</div>
+          <div className="item" onClick={() => { database.folders.doc(deletedId).delete(); }}>delete</div>
+          <div className="item" onClick={() => setEdit(true)}>rename</div>
+          {/* <div className="item" onClick={() => { navigator.clipboard.writeText(folder.name) }}>copy</div> */}
+          <div className="item" onClick={moveFolder} >move</div>
+          {/* <div className="item">paste</div> */}
+          <div className="item">properties</div>
         </div>}
 
     </>
