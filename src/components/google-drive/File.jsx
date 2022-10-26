@@ -1,6 +1,6 @@
 import { faFile } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { database, storage } from "../../firebase"
 import './File.scss'
 export default function File({ file }) {//files shown in dahsboard
@@ -30,15 +30,16 @@ export default function File({ file }) {//files shown in dahsboard
     contextMenu.classList.add("block");
     contextMenu.style.display = 'block';
   }
+useEffect(() =>{
   document.addEventListener('click', function (e) {//if a user click outside right click menubar
     let inside = (e.target.closest('#container'));
     if (!inside && clicked) {
       let contextMenu = document.getElementById(file.id);
-      // console.log(location.pathname);
       contextMenu.style.display = 'none';
       setClicked(false);
     }
   });
+},[file])
 
   function moveFile () {
     localStorage.setItem("moveFileId", file.id);
@@ -69,6 +70,21 @@ export default function File({ file }) {//files shown in dahsboard
 
       })
       .catch((error) => { });
+
+  }
+
+  function deletFile() {
+
+    database.files.doc(file.id)
+    .delete()
+    .then((docRef) => {
+      console.log(docRef.data())
+  
+  
+
+    })
+    .catch((error) => { });
+
 
   }
 
@@ -116,7 +132,7 @@ export default function File({ file }) {//files shown in dahsboard
       }
       {
         <div className="menu_container" style={{ display: 'none' }} id={file.id} >
-          <div className="item" onClick={() => { database.files.doc(file.id).delete(); }}>delete</div>
+          <div className="item" onClick={deletFile}>delete</div>
           <div className="item" onClick={moveFile}>move</div>
           <div className="item" onClick={getProps}>properties</div>
         </div>}

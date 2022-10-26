@@ -28,18 +28,17 @@ export default function Folder({ folder }) {
 
   useKeyboardShortcut(test123, ['Shift', 'Enter']);
 
-  const location = useLocation();
-
-
-  document.addEventListener('click', function (e) {//if a user click outside right click menubar
-    let inside = (e.target.closest('#container'));
-    if (!inside && clicked) {
-      let contextMenu = document.getElementById(folder.id);
-      // console.log(location.pathname);
-      contextMenu.style.display = 'none';
-      setClicked(false);
-    }
-  });
+  useEffect(() => {
+    document.addEventListener('click', function (e) {//if a user click outside right click menubar
+      let inside = (e.target.closest('#container'));
+      if (!inside && clicked) {
+        let contextMenu = document.getElementById(folder.id);
+        // console.log(location.pathname);
+        contextMenu.style.display = 'none';
+        setClicked(false);
+      }
+    });
+  }, [folder])
 
 
   const saveData = () => {//to update the name of the folder
