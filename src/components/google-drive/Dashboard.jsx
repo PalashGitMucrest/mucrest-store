@@ -12,6 +12,8 @@ import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons"
 import { database } from "../../firebase"
 import { Modal, Form, Button } from "react-bootstrap"
 import './Dashboard.scss'
+import { incNumber, decNumber } from "../../actions"
+import { useSelector, useDispatch } from 'react-redux';
 import { storage } from "../../firebase"
 
 export default function Dashboard() {//dashboard to show the folders and files
@@ -20,21 +22,23 @@ export default function Dashboard() {//dashboard to show the folders and files
   const { folder, childFolders, childFiles } = useFolder(folderId, state.folder)
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
+  let myState = useSelector((state) => state.changeNumber);
+  let dispatch = useDispatch();
 
   function openModal() {
     setOpen(true)
   }
 
   function moveHere() {
-    if(localStorage.getItem("moveId")){
+    if (localStorage.getItem("moveId")) {
       database.folders.doc(localStorage.getItem("moveId")).update({ parentId: folder.id, path: [...folder.path] });
       localStorage.clear("moveId");
     }
-    if(localStorage.getItem("moveFileId")){
+    if (localStorage.getItem("moveFileId")) {
       database.files.doc(localStorage.getItem("moveFileId")).update({ folderId: folder.id });
       localStorage.clear("moveFileId");
     }
-    
+
   }
 
   function closeModal() {
@@ -112,14 +116,26 @@ export default function Dashboard() {//dashboard to show the folders and files
             )}
           </div>
         </div>
+
+
+
+
         {
           (localStorage.getItem("moveId") || localStorage.getItem("moveFileId")) &&
-          <button className="move-btn" onClick={moveHere}>
-          Move Here
-        </button>
+          <section className="move_part" onClick={moveHere}>
+            <p>
+              Move Here
+            </p>
+          </section>
         }
 
+
+
       </section>
+
+
+
+
     </>
   )
 }

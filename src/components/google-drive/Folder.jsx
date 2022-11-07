@@ -6,6 +6,8 @@ import { faCheck, faFolder, faTimes } from "@fortawesome/free-solid-svg-icons"
 import './Folder.scss'
 import { database, storage } from "../../firebase"
 import { useKeyboardShortcut } from "../../hooks/useKeyboardShortcut"
+import { useSelector } from "react-redux"
+import { useCallback } from "react"
 
 // import { useKeyboardShortcut } from "./Navbar"
 
@@ -15,6 +17,7 @@ export default function Folder({ folder }) {
   let [name, setName] = useState(true);
   let [clicked, setClicked] = useState(false);
   let [copiedData, setCopy] = useState();
+  let myState = useSelector((state) => state.rolePermission);
 
   function test123() {
 
@@ -28,27 +31,72 @@ export default function Folder({ folder }) {
 
   useKeyboardShortcut(test123, ['Shift', 'Enter']);
 
-  useEffect(() => {
-    document.addEventListener('click', function (e) {//if a user click outside right click menubar
-      let inside = (e.target.closest('#container'));
-      if (!inside && clicked) {
-        let contextMenu = document.getElementById(folder.id);
-        // console.log(location.pathname);
-        contextMenu.style.display = 'none';
-        setClicked(false);
-      }
-    });
-  }, [folder])
+  
+
+  let [folderArr, setArr] = useState([]);
+  let [delFlag, setFlag] = useState(false);
+
+
+  const deleteFolder = () => {
+
+    if (myState === 'read') {
+      alert(`You don't have the permission to delete this folder`);
+      return;
+    }
+
+    else {
+      database.folders.doc(folder.id)
+        .delete()
+        .then((docRef) => {
+          console.log(docRef.data())
+
+
+
+        })
+        .catch((error) => { });
+        setFlag(true)
+    }
+
+
+  }
+
+    
+      document.addEventListener('click', function (e) {//if a user click outside right click menubar
+        let inside = (e.target.closest('#container'));
+        if (!inside && folder.id) {
+          let contextMenu = document.getElementById(folder.id);
+          if(contextMenu){
+            contextMenu.style.display = 'none';
+          }
+          setClicked(false);
+        }
+      });
+
+      
+    
+
+  
+
+
+  useEffect(() =>{
+    // console.log(folder.name);
+    // setArr(...folder.name)
+    // console.log(folder.id);
+    console.log(delFlag);
+    
+  },[delFlag])
 
 
   const saveData = () => {//to update the name of the folder
     database.folders.doc(folder.id).update({ name: name });
+    console.log(folderArr);
     setEdit(false);
   }
 
   const showItems = (event) => {//show menu on on right click
     event.preventDefault();
     setClicked(true);
+    // setFlag(false);
     let contextMenu = document.getElementById(folder.id);
     console.log(contextMenu);
     contextMenu.style.cssText = `
@@ -73,21 +121,31 @@ export default function Folder({ folder }) {
   }
 
   function moveFolder() {
-    localStorage.setItem("moveId", folder.id);
-    var docRef = storage.collection("folders").doc(folder.id);
 
-    docRef.get().then((doc) => {
-      if (doc.exists) {
-        console.log("Document data:", doc.data());
-      } else {
-        console.log("No such document!");
-      }
-    }).catch((error) => {
-      console.log("Error getting document:", error);
-    });
+    console.log(myState);
+
+    if (myState === 'read') {
+      alert(`You don't have the permission to move this folder`);
+      return;
+    }
+    else {
+      localStorage.setItem("moveId", folder.id);
+      var docRef = storage.collection("folders").doc(folder.id);
+
+      docRef.get().then((doc) => {
+        if (doc.exists) {
+          console.log("Document data:", doc.data());
+        } else {
+          console.log("No such document!");
+        }
+      }).catch((error) => {
+        console.log("Error getting document:", error);
+      });
+    }
 
   }
 
+  
 
 
 
@@ -137,10 +195,16 @@ export default function Folder({ folder }) {
         </div>
       }
 
-      {
+      { folder.id &&
+      
         <div className="menu_container" style={{ display: 'none' }} id={folder.id} >
-          <div className="item" onClick={() => { database.folders.doc(deletedId).delete(); }}>delete</div>
-          <div className="item" onClick={() => setEdit(true)}>rename</div>
+          <div className="item" onClick={deleteFolder}>delete</div>
+          <div className="item" onClick={() => {
+            if (myState === 'read') {
+              alert(`You don't have the permission to rename this folder`);
+              return;
+            } else setEdit(true)
+          }}>rename</div>
           {/* <div className="item" onClick={() => { navigator.clipboard.writeText(folder.name) }}>copy</div> */}
           <div className="item" onClick={moveFolder} >move</div>
           {/* <div className="item">paste</div> */}

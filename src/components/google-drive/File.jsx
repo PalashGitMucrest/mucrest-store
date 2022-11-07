@@ -30,18 +30,19 @@ export default function File({ file }) {//files shown in dahsboard
     contextMenu.classList.add("block");
     contextMenu.style.display = 'block';
   }
-useEffect(() =>{
+
   document.addEventListener('click', function (e) {//if a user click outside right click menubar
     let inside = (e.target.closest('#container'));
-    if (!inside && clicked) {
+    if (!inside && file.id) {
       let contextMenu = document.getElementById(file.id);
-      contextMenu.style.display = 'none';
+      if (contextMenu) {
+        contextMenu.style.display = 'none';
+      }
       setClicked(false);
     }
   });
-},[file])
 
-  function moveFile () {
+  function moveFile() {
     localStorage.setItem("moveFileId", file.id);
     var docRef = storage.collection("files").doc(file.id);
 
@@ -76,14 +77,14 @@ useEffect(() =>{
   function deletFile() {
 
     database.files.doc(file.id)
-    .delete()
-    .then((docRef) => {
-      console.log(docRef.data())
-  
-  
+      .delete()
+      .then((docRef) => {
+        console.log(docRef.data())
 
-    })
-    .catch((error) => { });
+
+
+      })
+      .catch((error) => { });
 
 
   }
